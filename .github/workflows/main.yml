@@ -1,0 +1,30 @@
+name: Fetch Weather Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        pip install requests pandas boto3 google-cloud-storage azure-storage-blob
+
+    - name: Run data fetching script
+      run: |
+        python fetch_weather_data.py
+
+    - name: Upload to Google Cloud Storage
+      run: |
+        python upload_to_gcp.py
