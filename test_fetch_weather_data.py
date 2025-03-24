@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
-from main import fetch_weather_data
+from fetch_weather_data import fetch_weather_data
 
 class TestFetchWeatherData(unittest.TestCase):
-    @patch('main.requests.get')
+    @patch('fetch_weather_data.requests.get')
     def test_fetch_weather_data(self, mock_get):
         # Mock API response
         mock_get.return_value.json.return_value = {

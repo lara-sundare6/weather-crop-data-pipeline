@@ -1,1 +1,3 @@
 .terraform/
+historical_weather_data.csv
+current_weather_data.csv
