@@ -49,6 +49,36 @@ def save_to_csv(df, file_path):
     """Save DataFrame to a CSV file."""
     df.to_csv(file_path, index=False)
 
+
+
+def plot_growth_conditions(historical_data, crop_name, ideal_temp_range, ideal_precipitation, ideal_sunlight):
+    """Plot growth conditions for a specific crop."""
+    # Load historical data
+    df = pd.read_csv(historical_data)
+    
+    # Plot temperature
+    plt.figure(figsize=(12, 8))
+    plt.plot(df['date'], df['temperature'], label='Actual Temperature (°F)', color='orange')
+    plt.fill_between(df['date'], ideal_temp_range[0], ideal_temp_range[1], color='orange', alpha=0.2, label='Ideal Temperature Range')
+    
+    # Plot precipitation
+    plt.bar(df['date'], df['precipitation'], label='Actual Precipitation (in)', color='blue', alpha=0.6)
+    plt.axhline(y=ideal_precipitation, color='blue', linestyle='--', label='Ideal Precipitation')
+    
+    # Plot sunlight (estimated from cloud cover)
+    sunlight_hours = 24 * (1 - df['cloud_cover'] / 100)
+    plt.plot(df['date'], sunlight_hours, label='Estimated Sunlight Hours', color='yellow')
+    plt.axhline(y=ideal_sunlight, color='yellow', linestyle='--', label='Ideal Sunlight Hours')
+    
+    # Add labels, title, and legend
+    plt.title(f"Chicago Urban Farm Growth Conditions: {crop_name}")
+    plt.xlabel("Date")
+    plt.ylabel("Environmental Factors")
+    plt.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
 if __name__ == '__main__':
     # Load the weather data
     df = load_weather_data('weather_data.csv')
@@ -75,3 +105,11 @@ if __name__ == '__main__':
     # Save ideal conditions to a new CSV file
     save_to_csv(ideal_corn_growth_conditions, 'ideal_conditions.csv')
     print("Ideal conditions saved to 'ideal_conditions.csv'")
+
+    # Plot growth conditions for a specific crop
+    crop_name = "Tomatoes"
+    ideal_temp_range = (70, 85)  # Ideal temperature range in °F
+    ideal_precipitation = 0.5  # Ideal daily precipitation in inches
+    ideal_sunlight = 10  # Ideal daily sunlight hours
+    
+    plot_growth_conditions('historical_weather_data.csv', crop_name, ideal_temp_range, ideal_precipitation, ideal_sunlight)
