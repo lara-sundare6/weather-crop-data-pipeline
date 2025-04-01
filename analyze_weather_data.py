@@ -1,9 +1,32 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
+
+CROP_CONDITIONS = {
+    "Corn": {
+        "temperature_range": (77, 91),  # Ideal temperature range in °F
+        "precipitation": 0.2,  # Ideal daily precipitation in inches
+        "sunlight": 8  # Ideal daily sunlight hours
+    },
+    "Tomatoes": {
+        "temperature_range": (70, 80),
+        "precipitation": 0.2,
+        "sunlight": 8
+    },
+    "Arugula": {
+        "temperature_range": (45, 65),
+        "precipitation": 0.2,
+        "sunlight": 6
+    }
+}
 
 def load_weather_data(file_path):
     """Load weather data from a CSV file."""
-    return pd.read_csv(file_path)
+    df = pd.read_csv(file_path)
+    # Convert precipitation from mm to inches
+    df['precipitation'] = df['precipitation'] / 25.4  # Convert mm to inches
+    return df
 
 def check_missing_values(df):
     """Check for missing values in the DataFrame."""
@@ -41,9 +64,14 @@ def scatter_temperature_vs_humidity(df):
     plt.grid()
     plt.show()
 
-def filter_ideal_corn_growth_conditions(df):
-    """Filter data for ideal conditions for corn growth."""
-    return df[(df['temperature'] >= 60) & (df['temperature'] <= 95)]
+def filter_ideal_growth_conditions(df, crop_name):
+    """Filter data for ideal growth conditions for a specific crop."""
+    conditions = CROP_CONDITIONS.get(crop_name)
+    if not conditions:
+        raise ValueError(f"Ideal conditions for crop '{crop_name}' are not defined.")
+    
+    temp_min, temp_max = conditions["temperature_range"]
+    return df[(df['temperature'] >= temp_min) & (df['temperature'] <= temp_max)]
 
 def save_to_csv(df, file_path):
     """Save DataFrame to a CSV file."""
@@ -51,10 +79,22 @@ def save_to_csv(df, file_path):
 
 
 
-def plot_growth_conditions(historical_data, crop_name, ideal_temp_range, ideal_precipitation, ideal_sunlight):
+def plot_growth_conditions(historical_data, crop_name):
     """Plot growth conditions for a specific crop."""
     # Load historical data
     df = pd.read_csv(historical_data)
+    
+    # Convert 'date' column to datetime for better handling
+    df['date'] = pd.to_datetime(df['date'])
+    
+    # Get ideal conditions for the crop
+    conditions = CROP_CONDITIONS.get(crop_name)
+    if not conditions:
+        raise ValueError(f"Ideal conditions for crop '{crop_name}' are not defined.")
+    
+    ideal_temp_range = conditions["temperature_range"]
+    ideal_precipitation = conditions["precipitation"]
+    ideal_sunlight = conditions["sunlight"]
     
     # Plot temperature
     plt.figure(figsize=(12, 8))
@@ -73,15 +113,21 @@ def plot_growth_conditions(historical_data, crop_name, ideal_temp_range, ideal_p
     # Add labels, title, and legend
     plt.title(f"Chicago Urban Farm Growth Conditions: {crop_name}")
     plt.xlabel("Date")
-    plt.ylabel("Environmental Factors")
+    plt.ylabel("Environmental Factors (°F, in, hours)")
     plt.legend()
-    plt.xticks(rotation=45)
+
+    # Format the X-axis for better readability
+    plt.gca().xaxis.set_major_locator(mdates.MonthLocator())  # Show one tick per month
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))  # Format as "Month Year"
+    plt.gcf().autofmt_xdate()  # Rotate and align date labels
+
     plt.tight_layout()
     plt.show()
 
+
 if __name__ == '__main__':
     # Load the weather data
-    df = load_weather_data('weather_data.csv')
+    df = load_weather_data('historical_weather_data.csv')
 
     # Check for missing values
     print("Missing Values:\n", check_missing_values(df))
@@ -98,18 +144,16 @@ if __name__ == '__main__':
     # Scatter plot of temperature vs. humidity
     scatter_temperature_vs_humidity(df)
 
-    # Filter data for ideal conditions for corn growth
-    ideal_corn_growth_conditions = filter_ideal_corn_growth_conditions(df)
-    print("Ideal Conditions for Corn Growth:\n", ideal_corn_growth_conditions)
+    # Specify the crop name
+    crop_name = "Tomatoes"  # Change this to the desired crop (e.g., "Corn", "Lettuce")
+
+    # Filter data for ideal growth conditions for the specified crop
+    ideal_growth_conditions = filter_ideal_growth_conditions(df, crop_name)
+    print(f"Ideal Conditions for {crop_name} Growth:\n", ideal_growth_conditions)
 
     # Save ideal conditions to a new CSV file
-    save_to_csv(ideal_corn_growth_conditions, 'ideal_conditions.csv')
-    print("Ideal conditions saved to 'ideal_conditions.csv'")
+    save_to_csv(ideal_growth_conditions, f'ideal_conditions_{crop_name.lower()}.csv')
+    print(f"Ideal conditions saved to 'ideal_conditions_{crop_name.lower()}.csv'")
 
-    # Plot growth conditions for a specific crop
-    crop_name = "Tomatoes"
-    ideal_temp_range = (70, 85)  # Ideal temperature range in °F
-    ideal_precipitation = 0.5  # Ideal daily precipitation in inches
-    ideal_sunlight = 10  # Ideal daily sunlight hours
-    
-    plot_growth_conditions('historical_weather_data.csv', crop_name, ideal_temp_range, ideal_precipitation, ideal_sunlight)
+    # Plot growth conditions for the specified crop
+    plot_growth_conditions('historical_weather_data.csv', crop_name)
