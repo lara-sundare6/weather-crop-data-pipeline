@@ -30,7 +30,7 @@ jobs:
   
     - name: Authenticate with Google Cloud
       run: |
-        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > gcp-key.json
+        printf "%s" "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > gcp-key.json
         gcloud auth activate-service-account --key-file=gcp-key.json
         gcloud config set project weather-crop-cloud
 
@@ -61,3 +61,6 @@ jobs:
         python upload_to_gcp.py $CROP_NAME
       env:
         CROP_NAME: Tomatoes  # Replace with the desired crop name
+
+    - name: Clean up
+      run: rm gcp-key.json
