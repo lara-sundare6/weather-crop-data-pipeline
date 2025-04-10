@@ -22,7 +22,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install requests pandas boto3 google-cloud-storage tqdm
+        pip install requests pandas boto3 google-cloud-storage tqdm matplotlib
 
     - name: Install gcloud CLI
       run: |
@@ -41,7 +41,7 @@ jobs:
         python fetch_weather_data.py
       env:
         OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
-        
+
     - name: Run data analysis script
       run: |
         python analyze_weather_data.py
