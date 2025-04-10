@@ -30,7 +30,7 @@ jobs:
   
     - name: Authenticate with Google Cloud
       run: |
-        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > gcp-key.json
+        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > gcp-key.json
         gcloud auth activate-service-account --key-file=gcp-key.json
         gcloud config set project weather-crop-cloud
 
