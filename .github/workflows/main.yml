@@ -1,6 +1,9 @@
 name: Fetch Weather Data
 
 on:
+  push:
+    branches:
+      - main  # Trigger the workflow when pushing to the main branch
   schedule:
     - cron: '0 0 * * *' # Runs daily at midnight
 
@@ -19,12 +22,42 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install requests pandas boto3 google-cloud-storage azure-storage-blob
+        pip install requests pandas boto3 google-cloud-storage tqdm
+
+    - name: Install gcloud CLI
+      run: |
+        sudo apt-get update && sudo apt-get install -y google-cloud-sdk
+
+    - name: Authenticate with Google Cloud
+      run: |
+        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > gcp-key.json
+        gcloud auth activate-service-account --key-file=gcp-key.json
+        gcloud config set project weather-crop-cloud
 
     - name: Run data fetching script
       run: |
         python fetch_weather_data.py
 
+    - name: Run data analysis script
+      run: |
+        python analyze_weather_data.py
+    
+    - name: Commit and push graphs
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add graphs/
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Update graphs for $CROP_NAME"
+          git push
+        fi
+      env:
+        CROP_NAME: Tomatoes  # Replace with the desired crop name
+
     - name: Upload to Google Cloud Storage
       run: |
-        python upload_to_gcp.py
+        python upload_to_gcp.py $CROP_NAME
+      env:
+        CROP_NAME: Tomatoes  # Replace with the desired crop name

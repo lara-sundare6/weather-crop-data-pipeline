@@ -30,8 +30,33 @@ def upload_to_gcp(bucket_name, source_file_name, destination_blob_name):
     print(f"File {source_file_name} uploaded to {destination_blob_name}.")
 
 if __name__ == "__main__":
-    bucket_name = "weather-data-bucket-weather-crop-cloud-dev-x0kjiuom"
-    source_file_name = "weather_data.csv"  
-    destination_blob_name = "current-weather-data.csv"
+    # Ensure the crop name is provided as a command-line argument
+    if len(sys.argv) < 2:
+        print("Usage: python3 upload_to_gcp.py <crop_name>")
+        sys.exit(1)
 
-    upload_to_gcp(bucket_name, source_file_name, destination_blob_name)
+    crop_name = sys.argv[1]  # Get the crop name from the command-line argument
+    bucket_name = "weather-data-bucket-weather-crop-cloud-dev-x0kjiuom"
+
+    # Files to upload
+    files_to_upload = [
+        {
+            "source_file_name": "historical_weather_data.csv",
+            "destination_blob_name": "historical_weather_data.csv"
+        },
+        {
+            "source_file_name": f"ideal_conditions_{crop_name}.csv",  # Dynamically use the crop name
+            "destination_blob_name": f"ideal_conditions_{crop_name}.csv"
+        }
+    ]
+
+    # Upload each file
+    for file in files_to_upload:
+        source_file_name = file["source_file_name"]
+        destination_blob_name = file["destination_blob_name"]
+
+        # Check if the file exists before uploading
+        if os.path.exists(source_file_name):
+            upload_to_gcp(bucket_name, source_file_name, destination_blob_name)
+        else:
+            print(f"File {source_file_name} does not exist. Skipping upload.")

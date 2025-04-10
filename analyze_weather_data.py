@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -96,34 +97,51 @@ def plot_growth_conditions(historical_data, crop_name):
     ideal_precipitation = conditions["precipitation"]
     ideal_sunlight = conditions["sunlight"]
     
+    # Calculate sunlight hours from cloud cover
+    df['sunlight_hours'] = 24 * (1 - df['cloud_cover'] / 100)
+    
+    # Identify critical events
+    frost_days = df[df['temperature'] < 32]  # Days with freezing temperatures
+    heat_stress_days = df[df['temperature'] > ideal_temp_range[1]]  # Days above ideal range
+    
+    # Create subplots
+    fig, axs = plt.subplots(3, 1, figsize=(12, 15), sharex=True)
+    
     # Plot temperature
-    plt.figure(figsize=(12, 8))
-    plt.plot(df['date'], df['temperature'], label='Actual Temperature (°F)', color='orange')
-    plt.fill_between(df['date'], ideal_temp_range[0], ideal_temp_range[1], color='orange', alpha=0.2, label='Ideal Temperature Range')
+    axs[0].plot(df['date'], df['temperature'], label='Actual Temperature (°F)', color='orange')
+    axs[0].fill_between(df['date'], ideal_temp_range[0], ideal_temp_range[1], color='orange', alpha=0.2, label='Ideal Temperature Range')
+    axs[0].scatter(frost_days['date'], frost_days['temperature'], color='blue', label='Frost Days (<32°F)', zorder=5)
+    axs[0].scatter(heat_stress_days['date'], heat_stress_days['temperature'], color='red', label='Heat Stress Days', zorder=5)
+    axs[0].set_ylabel("Temperature (°F)")
+    axs[0].set_title(f"Temperature Trends for {crop_name}")
+    axs[0].legend()
     
     # Plot precipitation
-    plt.bar(df['date'], df['precipitation'], label='Actual Precipitation (in)', color='blue', alpha=0.6)
-    plt.axhline(y=ideal_precipitation, color='blue', linestyle='--', label='Ideal Precipitation')
+    axs[1].bar(df['date'], df['precipitation'], label='Actual Precipitation (in)', color='blue', alpha=0.6)
+    axs[1].axhline(y=ideal_precipitation, color='blue', linestyle='--', label='Ideal Precipitation')
+    axs[1].set_ylabel("Precipitation (in)")
+    axs[1].set_title(f"Precipitation Trends for {crop_name}")
+    axs[1].legend()
     
-    # Plot sunlight (estimated from cloud cover)
-    sunlight_hours = 24 * (1 - df['cloud_cover'] / 100)
-    plt.plot(df['date'], sunlight_hours, label='Estimated Sunlight Hours', color='yellow')
-    plt.axhline(y=ideal_sunlight, color='yellow', linestyle='--', label='Ideal Sunlight Hours')
+    # Plot sunlight
+    axs[2].plot(df['date'], df['sunlight_hours'], label='Estimated Sunlight Hours', color='yellow')
+    axs[2].axhline(y=ideal_sunlight, color='yellow', linestyle='--', label='Ideal Sunlight Hours')
+    axs[2].set_ylabel("Sunlight (hours)")
+    axs[2].set_title(f"Sunlight Trends for {crop_name}")
+    axs[2].legend()
     
-    # Add labels, title, and legend
-    plt.title(f"Chicago Urban Farm Growth Conditions: {crop_name}")
-    plt.xlabel("Date")
-    plt.ylabel("Environmental Factors (°F, in, hours)")
-    plt.legend()
-
     # Format the X-axis for better readability
-    plt.gca().xaxis.set_major_locator(mdates.MonthLocator())  # Show one tick per month
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))  # Format as "Month Year"
-    plt.gcf().autofmt_xdate()  # Rotate and align date labels
-
+    axs[2].xaxis.set_major_locator(mdates.MonthLocator())  # Show one tick per month
+    axs[2].xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))  # Format as "Month Year"
+    fig.autofmt_xdate()  # Rotate and align date labels
+    
+    # Save the graph to a file
+    output_dir = "graphs"
+    os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
+    output_file = os.path.join(output_dir, f"{crop_name}_growth_conditions.png")
     plt.tight_layout()
-    plt.show()
-
+    plt.savefig(output_file)  # Save the graph as a PNG file
+    print(f"Graph saved to {output_file}")
 
 if __name__ == '__main__':
     # Load the weather data
