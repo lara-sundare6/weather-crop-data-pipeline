@@ -39,7 +39,9 @@ jobs:
     - name: Run data fetching script
       run: |
         python fetch_weather_data.py
-
+      env:
+        OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+        
     - name: Run data analysis script
       run: |
         python analyze_weather_data.py
