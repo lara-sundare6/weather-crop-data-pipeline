@@ -1,6 +1,8 @@
 # Weather Crop Data Pipeline
 
-This project is an ETL pipeline that fetches, processes, and analyzes weather data to help urban farmers optimize crop growth conditions. It uses the OpenWeather API and Google Cloud Storage for data storage and visualization.
+This project is an ETL pipeline that fetches, processes, and analyzes weather data to help urban farmers optimize crop growth conditions. It uses the OpenWeather API and Google Cloud Storage for data storage and visualization. 
+
+note: Currently displaying Tomatoes data, refreshes daily with GitHub Actions
 
 ## Features
 - Fetch current and historical weather data using the OpenWeather API.
