@@ -2,24 +2,23 @@ from google.cloud import storage
 from google.auth import default
 import json
 import os
-import sys
 
-credentials, project = default()
+# credentials, project = default()
 
-if hasattr(credentials, 'service_account_email'):
-    print(f"Authenticated as: {credentials.service_account_email}")
-elif hasattr(credentials, 'to_json'):
-    credentials_json = credentials.to_json()
-    credentials_dict = json.loads(credentials_json)
-    if 'email' in credentials_dict:
-        print(f"Authenticated as: {credentials_dict['email']}")
-    else:
-        print("Authenticated with application default credentials. No email available.")
-else:
-    print("Could not get authenticated identity.")
+# if hasattr(credentials, 'service_account_email'):
+#     print(f"Authenticated as: {credentials.service_account_email}")
+# elif hasattr(credentials, 'to_json'):
+#     credentials_json = credentials.to_json()
+#     credentials_dict = json.loads(credentials_json)
+#     if 'email' in credentials_dict:
+#         print(f"Authenticated as: {credentials_dict['email']}")
+#     else:
+#         print("Authenticated with application default credentials. No email available.")
+# else:
+#     print("Could not get authenticated identity.")
 
-print(credentials.to_json())
-print(type(credentials))
+# # print(credentials.to_json())
+# # print(type(credentials))
 
 def upload_to_gcp(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the bucket."""
@@ -31,6 +30,7 @@ def upload_to_gcp(bucket_name, source_file_name, destination_blob_name):
     print(f"File {source_file_name} uploaded to {destination_blob_name}.")
 
 if __name__ == "__main__":
+    import sys
     # Ensure the crop name is provided as a command-line argument
     if len(sys.argv) < 2:
         print("Usage: python3 upload_to_gcp.py <crop_name>")
