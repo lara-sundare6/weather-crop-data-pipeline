@@ -2,6 +2,7 @@ from google.cloud import storage
 from google.auth import default
 import json
 import os
+import sys
 
 credentials, project = default()
 
