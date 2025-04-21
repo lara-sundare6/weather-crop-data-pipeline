@@ -125,7 +125,7 @@ def plot_growth_conditions(historical_data, crop_name):
     
     # Plot sunlight
     axs[2].plot(df['date'], df['sunlight_hours'], label='Estimated Sunlight Hours', color='yellow')
-    axs[2].axhline(y=ideal_sunlight, color='yellow', linestyle='--', label='Ideal Sunlight Hours')
+    axs[2].axhline(y=ideal_sunlight, color='orange', linestyle='--', label='Ideal Sunlight Hours')
     axs[2].set_ylabel("Sunlight (hours)")
     axs[2].set_title(f"Sunlight Trends for {crop_name}")
     axs[2].legend()
