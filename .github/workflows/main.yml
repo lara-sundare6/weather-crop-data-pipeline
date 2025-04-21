@@ -37,6 +37,9 @@ jobs:
         EOF
         gcloud auth activate-service-account --key-file=gcp-key.json
         gcloud config set project weather-crop-cloud
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: gcp-key.json
+
 
     - name: Run data fetching script
       run: |
@@ -69,6 +72,7 @@ jobs:
         python upload_to_gcp.py $CROP_NAME
       env:
         CROP_NAME: Tomatoes  # Replace with the desired crop name
+        GOOGLE_APPLICATION_CREDENTIALS: gcp-key.json
 
     - name: Clean up
       run: rm gcp-key.json
