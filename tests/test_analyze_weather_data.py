@@ -1,8 +1,8 @@
 import pandas as pd
-from analyze_weather_data import (
+from src.analyze_weather_data import (
     check_missing_values,
     summary_statistics,
-    filter_ideal_corn_growth_conditions,
+    filter_ideal_growth_conditions
 )
 
 def test_check_missing_values():
@@ -25,13 +25,13 @@ def test_summary_statistics():
     assert 'temperature' in result.columns
     assert 'humidity' in result.columns
 
-def test_filter_ideal_corn_growth_conditions():
+def test_filter_ideal_growth_conditions():
     """Test filtering for ideal corn growth conditions."""
     df = pd.DataFrame({
         'temperature': [55, 65, 75, 85, 95, 105],
         'humidity': [30, 40, 50, 60, 70, 80],
     })
-    result = filter_ideal_corn_growth_conditions(df)
+    result = filter_ideal_growth_conditions(df)
     expected = pd.DataFrame({
         'temperature': [65, 75, 85, 95],
         'humidity': [40, 50, 60, 70],

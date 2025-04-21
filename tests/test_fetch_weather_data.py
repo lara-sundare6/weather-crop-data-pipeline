@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
-from fetch_weather_data import fetch_weather_data
+from src.fetch_weather_data import fetch_historical_weather_data
 
 class TestFetchWeatherData(unittest.TestCase):
-    @patch('fetch_weather_data.requests.get')
+    @patch('fetch_historical_weather_data.requests.get')
     def test_fetch_weather_data(self, mock_get):
         # Mock API response
         mock_get.return_value.json.return_value = {
@@ -21,7 +21,7 @@ class TestFetchWeatherData(unittest.TestCase):
         api_key = "dummy_key"
         lat = "41.8781"
         lon = "-87.6298"
-        result = fetch_weather_data(api_key, lat, lon)
+        result = fetch_historical_weather_data(api_key, lat, lon)
 
         print("Mock Called:", mock_get.called)
 
